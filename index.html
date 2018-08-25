@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="./styles/scrpagestyle.css">
+    <title>WPS</title>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-dark bg-primary my-2">
+        <!--<a class="navbar-brand" href="#">-->
+            <span class="navbar-brand"><img src="./img/photo-camera.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+                WebPageScreenshot Free Tool <span class="text-white-50">| from essent.tools</span></span>
+        <!--</a>-->
+    </nav>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="border border-primary rounded">
+                <div class="p-3">
+                    <h5>Get website screenshot for free!</h5>
+                    <form role="form" onsubmit="return sendForm()">
+                        <div class="form-group">
+                            <label for="url">
+                                Input website URL here:
+                            </label>
+                            <input type="text" class="form-control" id="url" name="url" onchange="this.value = addHTTPtoURL(this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label for="reschooser">
+                                Choose the resolution:
+                            </label>
+                            <select class="custom-select" id="reschooser" name="reschooser">
+                                <option value="360*640*mobile" selected>360x640 [logical] mobile, the most popular res on the web, 23%/all, 41%/mobile</option>
+                                <option value="320*568*mobile">iPhone SE [logical]: 320x568 (also 5, 5S, 5C, iPod Touch 5G)</option>
+                                <option value="375*667*mobile">iPhone 8 [logical]: 375x667 (also 6, 6S, 7)</option>
+                                <option value="414*736*mobile">iPhone 8 Plus [logical]: 414x736 (also 6 Plus, 6S Plus, 7 Plus)</option>
+                                <option value="375*812*mobile">iPhone X [logical]: 375x812</option>
+                                <option value="768*1024*tablet">iPad/Generic Tablet: 768x1024 (logical res f/almost all iPads, most pop. tablet res, 58%/tablets)</option>
+                                <option value="834*1112*tablet">iPad Pro 10.5 [logical]: 834x1112</option>
+                                <option value="1024*1366*tablet">iPad Pro 12.9 [logical]: 1024x1366</option>
+                                <option value="1024*768*desktop">1024x768 (Desktop, now practically not used)</option>
+                                <option value="1366*768*desktop">1366x768 (Desktop, most popular computer resolution, 27%/computers)</option>
+                                <option value="1280*800*desktop">1280×800 (Desktop, 4%/computers)</option>
+                                <option value="1440*900*desktop">1440x900 (Desktop, 7%/computers)</option>
+                                <option value="1536*864*desktop">1536x864 (Desktop, 5%/computers)</option>
+                                <option value="1600*900*desktop">1600x900 (Desktop, 6%/computers)</option>
+                                <option value="1920*1080*desktop">1920x1080 (Desktop, 20%/computers)</option>
+                            </select>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="closeads_chkbox" name="closeads_chkbox"> Try close pop-up ads first.
+                            </label>
+                            <p>
+                                <small>
+                                    Technically, we look if elements' [className] or [id] contains "popup", "banner", "HomepageOverlay" and apply "display:none" for them.
+                                </small>
+                            </p>
+                        </div>
+                        <button type="submit" id="submitButton" class="btn btn-primary">
+                            Get screenshot
+                        </button>
+                    </form>
+                </div>
+                <div class="footer navbar-fixed-bottom">
+                    <p><small>Complete page loading time will be here</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="border border-primary rounded p-3">
+
+                <div id="divScrImg1" style="display: block">
+                    <img id="screenshotImg" src="./img/placeholder.gif" width="100%">
+                </div>
+
+                <div id="divScrImg2" style="display: none">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function addHTTPtoURL(string) {
+        var string_lowered = string.toLowerCase(); //because .toLowerCase doesn't change original string, we need add one more variable
+        if (!string_lowered.match(/^https?:\/\//)) {
+            string_lowered = 'http://' + string_lowered;
+        }
+        return string_lowered;
+    }
+
+    //function creates XMLHttpRequest object if it is possible, else (maybe old Internet Explorer) it creates ActiveXObject
+    function getXMLHttpRequest() {
+        if (window.XMLHttpRequest) {
+            return new XMLHttpRequest();
+        }
+
+        return new ActiveXObject('Microsoft.XMLHTTP');
+    }
+
+    function disableFor7secSubmitButton(buttonId){
+        document.getElementById(buttonId).disabled = true;
+        setTimeout(function(){document.getElementById(buttonId).disabled = false;},7000);
+    }
+
+    //with this function we check if given URL is valid (it must begin with https?:// and can't contain some symbols and spaces):
+    function urlIsValid() {
+        var url = (document.getElementById('url')).value;
+        var urlTemplateRegexp = /(^https?:\/\/)(([^.\s`"'{}()[\]<>\\/|%^]+)\.)*([^.\s`"'{}()[\]<>\\/|%^]{1,})\.([^\s`"'{}()[\]<>\\|^]{1,})\S$/;
+        if(urlTemplateRegexp.test(url)) {
+            return true;
+        } else {
+            alert('URL is empty or not valid. Please, re-check URL address.');
+            return false;
+        }
+    }
+
+    function sendForm() {
+        if(urlIsValid()) { // we can proceed ONLY if URL is passed validation
+
+            disableFor7secSubmitButton('submitButton'); // temporary disable submit button to prevent frequent clicks
+
+            document.getElementById('divScrImg1').innerHTML = '<img src="./img/setting.gif" width="100%">'; // add picture with rotating gear to divScrImg1 block
+            document.getElementById('divScrImg2').style.display = 'none'; // hide divScrImg2 block (with screenshot loaded)
+            document.getElementById('divScrImg1').style.display = 'block'; // show rotating gear so user see that generation in progress
+
+            //if URL text box is not empty, we do JSON from form-data and send it via POST method:
+            var url = (document.getElementById('url')).value; //get url from url-text-box
+            var resolutionAndDevice = (document.getElementById('reschooser')).value; //get resolution and device type from drop-down menu
+            var closeAdsChkbox = (document.getElementById('closeads_chkbox')).checked; //get checkbox status
+
+            //create object, which will contain all info from form:
+            var formObject = {
+                url:'',
+                resolutionAndDevice:'',
+                closeAdsChkbox:''
+            };
+
+            //and let's populate our object with real data:
+            formObject.url = url;
+            formObject.resolutionAndDevice = resolutionAndDevice;
+            formObject.closeAdsChkbox = closeAdsChkbox;
+
+            //convert object with form data to json-string:
+            var jsonEncodedFormData = JSON.stringify(formObject);
+
+            request = getXMLHttpRequest();
+            request.open('POST', 'https://wps.essent.tools/get_screenshot.php', true); //Prepare our request
+            request.setRequestHeader('Content-type', 'application/json'); //because we'll send JSON as raw data to php://input
+            request.onreadystatechange = function() {
+                if (request.readyState === 4)  {
+                    var serverResponse = JSON.parse(request.responseText);
+                    if(serverResponse['imgPath']) {
+                        document.getElementById('divScrImg2').innerHTML = '<img src="' + serverResponse['imgPath'] + '" width="100%">';
+                        setTimeout(function () {
+                            document.getElementById('divScrImg1').style.display = 'none';
+                            fadeIn(document.getElementById('divScrImg2'));
+                        }, 1000);
+                    } else if(serverResponse['message']) {
+                        document.getElementById('divScrImg1').innerHTML = '<img src="./img/placeholder.gif" width="100%">';
+                        alert(serverResponse['message']);
+                    } else {
+                        document.getElementById('divScrImg1').innerHTML = '<img src="./img/placeholder.gif" width="100%">';
+                        alert ('Server does not responding :(');
+                    }
+                }
+            };
+            request.send(jsonEncodedFormData);
+
+            return false;
+        } else return false;
+    }
+//---------------------- FadeIn/FadeOut functions ------------
+
+    // fade out
+
+    function fadeOut(el){
+        el.style.opacity = 1;
+
+        (function fade() {
+            if ((el.style.opacity -= .005) < 0) {
+                el.style.display = "none";
+            } else {
+                requestAnimationFrame(fade);
+            }
+        })();
+    }
+
+    // fade in
+
+    function fadeIn(el, display){
+        el.style.opacity = 0;
+        el.style.display = display || "block";
+
+        (function fade() {
+            var val = parseFloat(el.style.opacity);
+            if (!((val += .005) > 1)) {
+                el.style.opacity = val;
+                requestAnimationFrame(fade);
+            }
+        })();
+    }
+
+</script>
+</body>
+</html>
