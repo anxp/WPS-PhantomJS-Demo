@@ -84,7 +84,9 @@ $hashURL = md5($url.$windowWidth.$windowHeight.$userAgent.(string)((int)$closeAd
 $saveImgPath = './screenshots/'.$hashURL.'.png';
 $saveScriptPath = './scripts/'.$hashURL.'.js';
 $saveLogPath = './logs/'.$hashURL.'.log';
-//$saveLogPath = './logs/'.'wps_system'.'.log';
+$saveUrlLogPath = './logs/requested_url.log'; //here we will store all URLs requested via our service
+
+file_put_contents($saveUrlLogPath, ('['.date("Y-m-d H:i").'] '.$url.PHP_EOL), FILE_APPEND | LOCK_EX); //put every URL (passed through filter) to log file - so we will know better what customers do
 
 $hidePopupFlag = $closeAdsChkbox ? 'true' : 'false'; //because it's better to explicitly specify is this flag TRUE or FALSE in js-script. Not 1 or just empty space!!!
 
